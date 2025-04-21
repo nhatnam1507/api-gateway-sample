@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - API_GATEWAY_SERVER_PORT=8080
+      - API_GATEWAY_SERVER_READTIMEOUT=30s
+      - API_GATEWAY_SERVER_WRITETIMEOUT=30s
+      - API_GATEWAY_SERVER_SHUTDOWNTIMEOUT=30s
+      
+      - API_GATEWAY_DATABASE_HOST=postgres
+      - API_GATEWAY_DATABASE_PORT=5432
+      - API_GATEWAY_DATABASE_USER=postgres
+      - API_GATEWAY_DATABASE_PASSWORD=postgres
+      - API_GATEWAY_DATABASE_DATABASE=api_gateway
+      - API_GATEWAY_DATABASE_SSLMODE=disable
+
+      - API_GATEWAY_REDIS_ADDRESS=redis:6379
+      - API_GATEWAY_REDIS_PASSWORD=
+      - API_GATEWAY_REDIS_DB=0
+
+      - API_GATEWAY_AUTH_SECRETKEY=your-secret-key-change-me
+      - API_GATEWAY_AUTH_ISSUER=api-gateway
+      - API_GATEWAY_AUTH_EXPIRATION=24h
+
+      - API_GATEWAY_LOGGING_LEVEL=info
+      - API_GATEWAY_LOGGING_DEVELOPMENT=true
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    networks:
+      - api-network
+
+  migrate:
+    image: migrate/migrate
+    volumes:
+      - ./migrations:/migrations
+    command: ["-path", "/migrations", "-database", "postgres://postgres:postgres@postgres:5432/api_gateway?sslmode=disable", "up"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - api-network
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=api_gateway
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - api-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d api_gateway"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    networks:
+      - api-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+networks:
+  api-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data: 

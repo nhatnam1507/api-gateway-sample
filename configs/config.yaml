@@ -1,0 +1,27 @@
+server:
+  port: 8080
+  readTimeout: 30s
+  writeTimeout: 30s
+  shutdownTimeout: 30s
+
+database:
+  host: localhost
+  port: 5432
+  user: postgres
+  password: postgres
+  database: api_gateway
+  sslmode: disable
+
+redis:
+  address: localhost:6379
+  password: ""
+  db: 0
+
+auth:
+  secretKey: your-secret-key-change-me
+  issuer: api-gateway
+  expiration: 24h
+
+logging:
+  level: info
+  development: true 

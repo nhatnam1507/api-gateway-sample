@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+Always follow the tasks in [todo.md](mdc:docs/todo.md). The the completed tasks is mark with [x]. Only create a new tasks if needed. One task will be mark completed if the application can build with no error.
