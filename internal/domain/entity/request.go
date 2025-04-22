@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"math/rand"
 	"time"
 )
 
@@ -62,8 +63,9 @@ func generateRequestID() string {
 func randomString(length int) string {
 	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	result := make([]byte, length)
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	for i := range result {
-		result[i] = charset[time.Now().UnixNano()%int64(len(charset))]
+		result[i] = charset[r.Intn(len(charset))]
 	}
 	return string(result)
 }
