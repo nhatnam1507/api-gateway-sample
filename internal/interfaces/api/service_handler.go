@@ -7,17 +7,16 @@ import (
 	"github.com/gorilla/mux"
 
 	"api-gateway-sample/internal/application/dto"
-	"api-gateway-sample/internal/application/usecase"
 	"api-gateway-sample/pkg/errors"
 )
 
 // ServiceHandler handles HTTP requests for service management
 type ServiceHandler struct {
-	serviceUseCase *usecase.ServiceUseCase
+	serviceUseCase ServiceUseCase
 }
 
 // NewServiceHandler creates a new ServiceHandler instance
-func NewServiceHandler(serviceUseCase *usecase.ServiceUseCase) *ServiceHandler {
+func NewServiceHandler(serviceUseCase ServiceUseCase) *ServiceHandler {
 	return &ServiceHandler{
 		serviceUseCase: serviceUseCase,
 	}
